@@ -1,0 +1,12 @@
+streamlit
+openai
+langchain
+langchain-community==0.2.0
+langchain-openai
+pinecone-client==3.2.2
+langchain-pinecone
+tiktoken
+pypdf
+docx2txt
+Pillow
+python-dotenv
