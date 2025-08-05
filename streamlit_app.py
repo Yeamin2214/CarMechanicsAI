@@ -36,20 +36,42 @@ except Exception as e:
 
 st.markdown("""
     <style>
-        /* Remove default margins and padding */
-        html, body, [data-testid="stAppViewContainer"] {
+        /* Aggressive removal of all default margins and padding */
+        html, body, #root, [data-testid="stAppViewContainer"], .main, .block-container {
             margin: 0 !important;
             padding: 0 !important;
+            min-height: 100vh !important;
         }
         
-        [data-testid="stHeader"] {
+        [data-testid="stHeader"], [data-testid="stToolbar"] {
             display: none !important;
+            height: 0 !important;
         }
         
         .main .block-container {
             padding-top: 0 !important;
             padding-bottom: 0 !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
             margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            max-width: none !important;
+        }
+        
+        .main > .block-container > div {
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        
+        [data-testid="stVerticalBlock"] {
+            gap: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        
+        .element-container {
+            margin: 0 !important;
+            padding: 0 !important;
         }
 
         /* ChatGPT-like simple interface */
