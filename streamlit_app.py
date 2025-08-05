@@ -24,41 +24,21 @@ if 'input_key' not in st.session_state:
 if 'last_user_input_content' not in st.session_state:
     st.session_state.last_user_input_content = ""
 
-# Try to load logo (car-related logo)
-logo_base64 = ""
+# Try to load car background image
+car_image_base64 = ""
 try:
-    with open("car_logo.png", "rb") as img_file:
-        logo_base64 = base64.b64encode(img_file.read()).decode()
+    with open("car_background.png", "rb") as img_file:
+        car_image_base64 = base64.b64encode(img_file.read()).decode()
 except FileNotFoundError:
-    st.warning("Logo file 'car_logo.png' not found. Please ensure it's in the same directory.")
+    st.warning("Car background image 'car_background.png' not found. Please ensure it's in the same directory.")
 except Exception as e:
-    st.error(f"An error occurred while loading the logo: {e}")
-
-# Try to load header image (car-related header)
-header_image_base64 = ""
-try:
-    with open("car_header.png", "rb") as img_file:
-        header_image_base64 = base64.b64encode(img_file.read()).decode()
-except FileNotFoundError:
-    st.warning("Header image 'car_header.png' not found. Please ensure it's in the same directory.")
-except Exception as e:
-    st.error(f"Error loading header image: {e}")
-
-# Try to load car engine background image
-engine_image_base64 = ""
-try:
-    with open("car_engine.png", "rb") as img_file:
-        engine_image_base64 = base64.b64encode(img_file.read()).decode()
-except FileNotFoundError:
-    st.warning("Engine image 'car_engine.png' not found. Please ensure it's in the same directory.")
-except Exception as e:
-    st.error(f"Error loading engine image: {e}")
+    st.error(f"Error loading car background image: {e}")
 
 st.markdown(f"""
     <style>
-        /* Main app styling with transparent car engine background */
+        /* Simple chat interface with car background */
         .stApp {{
-            background: linear-gradient(135deg, rgba(20, 20, 30, 0.8) 0%, rgba(40, 40, 50, 0.8) 50%, rgba(30, 30, 40, 0.8) 100%);
+            background: #f0f0f0;
             min-height: 100vh;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             position: relative;
@@ -66,7 +46,7 @@ st.markdown(f"""
 
         .stApp::before {{
             content: "";
-            background-image: url('data:image/png;base64,{engine_image_base64}');
+            background-image: url('data:image/png;base64,{car_image_base64}');
             background-repeat: no-repeat;
             background-position: center center;
             background-size: cover;
@@ -75,7 +55,7 @@ st.markdown(f"""
             left: 0;
             width: 100%;
             height: 100%;
-            opacity: 0.3;
+            opacity: 0.1;
             z-index: -1;
         }}
 
@@ -84,91 +64,74 @@ st.markdown(f"""
         footer {{visibility: hidden;}}
 
         .chat-container {{
-            max-width: 950px;
-            margin: auto;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 90%;
-            height: 80vh;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            height: 100vh;
             display: flex;
             flex-direction: column;
-            background: rgba(20, 20, 30, 0.9);
-            border: 2px solid rgba(255, 140, 0, 0.4);
-            border-radius: 25px;
-            box-shadow: 0 0 50px rgba(255, 140, 0, 0.3),
-                        inset 0 0 25px rgba(255, 140, 0, 0.15);
-            overflow: hidden;
-            backdrop-filter: blur(10px);
         }}
 
         .chat-header {{
-            background: linear-gradient(90deg, rgba(255, 140, 0, 0.4) 0%, rgba(220, 100, 0, 0.4) 100%);
-            padding: 25px;
+            background: #fff;
+            padding: 20px;
             text-align: center;
-            border-bottom: 2px solid rgba(255, 140, 0, 0.5);
-            position: relative;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }}
 
-        .header-image {{
-            max-width: 80%;
-            height: auto;
-            display: block;
-            margin: 0 auto;
-            filter: drop-shadow(0 0 10px rgba(255, 140, 0, 0.7));
+        .chat-title {{
+            font-size: 24px;
+            color: #333;
+            margin: 0;
+        }}
+
+        .chat-subtitle {{
+            font-size: 14px;
+            color: #666;
+            margin: 5px 0 0 0;
         }}
 
         /* Messages area */
         .messages-area {{
             flex: 1;
             overflow-y: auto;
-            padding: 25px 35px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            background: rgba(20, 20, 30, 0.8);
-            min-height: 0;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }}
 
         /* Message bubbles */
         .message {{
-            max-width: 75%;
-            padding: 18px 25px;
-            border-radius: 20px;
-            position: relative;
-            animation: fadeIn 0.6s ease-out;
-            font-size: 18px; /* Increased for better readability */
-            line-height: 1.8; /* Improved spacing */
-            color: #E0E7E9;
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            margin-bottom: 15px;
+            font-size: 16px;
+            line-height: 1.4;
         }}
 
         .user-message {{
-            align-self: flex-start;
-            background: linear-gradient(135deg, rgba(60, 60, 80, 0.6) 0%, rgba(40, 40, 60, 0.6) 100%);
-            border: 1px solid rgba(60, 60, 80, 0.7);
-            box-shadow: 0 6px 20px rgba(60, 60, 80, 0.5);
+            background: #007bff;
+            color: white;
+            margin-left: auto;
+            margin-right: 0;
+        }}
+
+        .bot-message {{
+            background: #f1f1f1;
+            color: #333;
             margin-right: auto;
             margin-left: 0;
         }}
 
-        .bot-message {{
-            align-self: flex-end;
-            background: linear-gradient(135deg, rgba(255, 140, 0, 0.6) 0%, rgba(220, 100, 0, 0.6) 100%);
-            border: 1px solid rgba(255, 140, 0, 0.7);
-            box-shadow: 0 6px 20px rgba(255, 140, 0, 0.5);
-            margin-left: auto;
-            margin-right: 0;
-            color: #FFFFFF; /* High contrast text color */
-        }}
-
         .message-time {{
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.5);
-            margin-top: 10px;
-        }}
-
-        .user-message .message-time {{
+            font-size: 10px;
+            color: rgba(0,0,0,0.5);
+            margin-top: 5px;
             text-align: right;
         }}
 
@@ -179,161 +142,91 @@ st.markdown(f"""
         /* Welcome message */
         .welcome-message {{
             text-align: center;
-            margin: auto;
-            color: #E0E7E9;
-            padding: 30px;
+            color: #666;
+            padding: 40px 20px;
         }}
 
         .welcome-message h2 {{
-            font-size: 30px;
-            margin-bottom: 15px;
-            color: #FF8C00;
-            font-weight: 700;
-            letter-spacing: 1.5px;
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #333;
         }}
 
         .welcome-message p {{
-            font-size: 20px;
-            color: #C0C8CA;
-            font-weight: 500;
-            line-height: 1.7;
+            font-size: 16px;
+            color: #666;
         }}
 
-        /* Input area - now a flex container for input and button */
+        /* Input area */
         .input-container {{
-            padding: 25px 30px;
-            background: rgba(20, 20, 30, 0.95);
-            border-top: 2px solid rgba(255, 140, 0, 0.5);
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             display: flex;
-            align-items: center;
-            gap: 15px;
+            gap: 10px;
         }}
 
-        /* Target Streamlit's div wrappers for flex behavior */
         .stTextInput {{
             flex-grow: 1;
-            min-width: 150px;
         }}
 
-        .stButton {{
-            flex-shrink: 0;
-        }}
-
-        /* Custom input styling with 3D effect */
         .stTextInput > div > div > input {{
-            background: rgba(40, 40, 50, 0.9) !important;
-            border: 2px solid rgba(255, 140, 0, 0.6) !important;
-            color: #E0E7E9 !important;
+            background: #f8f9fa !important;
+            border: 1px solid #ddd !important;
+            color: #333 !important;
             border-radius: 25px !important;
-            padding: 18px 25px !important;
-            font-size: 17px !important;
-            transition: all 0.4s ease !important;
-            box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.4),
-                        inset -2px -2px 5px rgba(255, 255, 255, 0.1);
-            caret-color: white !important;
+            padding: 12px 20px !important;
+            font-size: 16px !important;
         }}
 
-        /* Fix for red border and enhanced 3D/glow on focus */
-        .stTextInput > div > div > input:focus,
-        .stTextInput > div > div > input:focus-visible,
-        .stTextInput > div > div > input:active {{
-            border-color: rgba(255, 140, 0, 0.9) !important;
-            box-shadow: 0 0 30px rgba(255, 140, 0, 0.8),
-                        inset 2px 2px 8px rgba(0, 0, 0, 0.6),
-                        inset -2px -2px 8px rgba(255, 255, 255, 0.15) !important;
+        .stTextInput > div > div > input:focus {{
+            border-color: #007bff !important;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25) !important;
             outline: none !important;
         }}
 
         .stTextInput > div > div > input::placeholder {{
-            color: rgba(255, 255, 255, 0.4) !important;
+            color: #999 !important;
         }}
 
-        /* Button styling */
         .stButton > button {{
-            background: linear-gradient(90deg, #FF8C00 0%, #DC6400 100%) !important;
-            color: #ffffff !important;
+            background: #007bff !important;
+            color: white !important;
             border: none !important;
             border-radius: 25px !important;
-            padding: 18px 35px !important;
-            font-size: 17px !important;
-            font-weight: 700 !important;
-            letter-spacing: 1.2px !important;
-            transition: all 0.3s ease !important;
-            box-shadow: 0 5px 25px rgba(255, 140, 0, 0.5) !important;
-            cursor: pointer;
+            padding: 12px 24px !important;
+            font-size: 16px !important;
+            cursor: pointer !important;
         }}
 
         .stButton > button:hover {{
-            transform: translateY(-3px) !important;
-            box-shadow: 0 8px 30px rgba(255, 140, 0, 0.7) !important;
-            filter: brightness(1.1);
+            background: #0056b3 !important;
         }}
 
-        /* Scrollbar styling */
-        .messages-area::-webkit-scrollbar {{
-            width: 12px;
-        }}
-
-        .messages-area::-webkit-scrollbar-track {{
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
-        }}
-
-        .messages-area::-webkit-scrollbar-thumb {{
-            background: linear-gradient(180deg, #FF8C00 0%, #DC6400 100%);
-            border-radius: 10px;
-            border: 2px solid rgba(0,0,0,0.1);
-        }}
-
-        /* Animation */
-        @keyframes fadeIn {{
-            from {{
-                opacity: 0;
-                transform: translateY(20px);
-            }}
-            to {{
-                opacity: 1;
-                transform: translateY(0);
-            }}
-        }}
-
-        /* Logo styling - Fixed at top-left */
-        .logo-container {{
-            position: fixed;
-            top: 25px;
-            left: 25px;
-            z-index: 1000;
-            opacity: 0.95;
-        }}
-
-        /* Glow effect for logo */
-        .logo-glow {{
-            filter: drop-shadow(0 0 20px rgba(255, 140, 0, 0.8));
-        }}
-
-        /* Typing indicator for "..." */
-        .message.bot-message .typing-dots {{
+        /* Typing indicator */
+        .typing-dots {{
             display: inline-flex;
             align-items: center;
         }}
 
-        .message.bot-message .typing-dots span {{
+        .typing-dots span {{
             display: inline-block;
-            width: 8px;
-            height: 8px;
-            background-color: #C0C8CA;
+            width: 6px;
+            height: 6px;
+            background-color: #999;
             border-radius: 50%;
             margin: 0 2px;
             animation: typing 1.4s infinite ease-in-out;
         }}
 
-        .message.bot-message .typing-dots span:nth-child(1) {{
+        .typing-dots span:nth-child(1) {{
             animation-delay: 0s;
         }}
-        .message.bot-message .typing-dots span:nth-child(2) {{
+        .typing-dots span:nth-child(2) {{
             animation-delay: 0.2s;
         }}
-        .message.bot-message .typing-dots span:nth-child(3) {{
+        .typing-dots span:nth-child(3) {{
             animation-delay: 0.4s;
         }}
 
@@ -343,27 +236,20 @@ st.markdown(f"""
                 opacity: 0.6;
             }}
             40% {{
-                transform: translateY(-5px);
+                transform: translateY(-3px);
                 opacity: 1;
             }}
         }}
     </style>
 """, unsafe_allow_html=True)
 
-# Display logo if available
-if logo_base64:
-    st.markdown(f"""
-        <div class="logo-container">
-            <img src="data:image/png;base64,{logo_base64}" width="80" class="logo-glow">
-        </div>
-    """, unsafe_allow_html=True)
-
 st.markdown('<div class="chat-container">', unsafe_allow_html=True)
 
 # Header section
 st.markdown(f"""
     <div class="chat-header">
-        {'<img src="data:image/png;base64,' + header_image_base64 + '" class="header-image">' if header_image_base64 else '<h1 class="chat-title">AutoDiag AI - Car Expert</h1><p class="chat-subtitle">Engine • Transmission • Electrical • Diagnostics</p>'}
+        <h1 class="chat-title">AutoDiag AI - Car Expert</h1>
+        <p class="chat-subtitle">Engine • Transmission • Electrical • Diagnostics</p>
     </div>
 """, unsafe_allow_html=True)
 
