@@ -36,6 +36,22 @@ except Exception as e:
 
 st.markdown("""
     <style>
+        /* Remove default margins and padding */
+        html, body, [data-testid="stAppViewContainer"] {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        
+        [data-testid="stHeader"] {
+            display: none !important;
+        }
+        
+        .main .block-container {
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            margin-top: 0 !important;
+        }
+
         /* ChatGPT-like simple interface */
         .stApp {
             background: #ffffff;
