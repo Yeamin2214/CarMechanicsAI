@@ -91,11 +91,16 @@ st.markdown("""
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
         }
 
         .chat-header {
             background: #fff;
-            padding: 20px;
+            padding: 10px 20px;
             text-align: center;
             border-bottom: 1px solid #e5e5e5;
             position: sticky;
