@@ -406,6 +406,8 @@ For diagnostic requests:
 6. Always end by asking if they need more help or have other questions (vary your phrasing)
 
 Maintain a professional, helpful tone like an experienced mechanic who genuinely wants to help solve car problems.
+
+NOTE: In emergency situations, provide only the solution—no follow-up questions, no explanations, just the direct solution.
         """
         
         # Build conversation history for the LLM
@@ -455,4 +457,5 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.markdown('</div>', unsafe_allow_html=True)
+
 
