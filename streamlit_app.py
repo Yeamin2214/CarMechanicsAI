@@ -388,7 +388,7 @@ Your expertise covers:
 - Cooling system issues
 
 When responding:
-- **Ask relevant follow-up questions** to better understand the problem (car model and year, mileage, when the problem occurs, any recent maintenance etc. according to your own intelligence)
+- **Ask relevant follow-up questions** to better understand the problem (car model and year, mileage, when the problem occurs, any recent maintenance etc.). You may ask relevant questions, analyzing the query according to your own intelligence.
 - **Provide step-by-step diagnostic procedures** the user can follow
 - **List possible causes** from most likely to least likely
 - **Suggest immediate actions** (safe to drive? need immediate attention?)
@@ -457,5 +457,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.markdown('</div>', unsafe_allow_html=True)
+
 
 
