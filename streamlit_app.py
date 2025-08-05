@@ -24,236 +24,246 @@ if 'input_key' not in st.session_state:
 if 'last_user_input_content' not in st.session_state:
     st.session_state.last_user_input_content = ""
 
-# Try to load car background image
-car_image_base64 = ""
+# Try to load logo
+logo_base64 = ""
 try:
-    with open("car_background.png", "rb") as img_file:
-        car_image_base64 = base64.b64encode(img_file.read()).decode()
+    with open("logo.png", "rb") as img_file:
+        logo_base64 = base64.b64encode(img_file.read()).decode()
 except FileNotFoundError:
-    st.warning("Car background image 'car_background.png' not found. Please ensure it's in the same directory.")
+    st.warning("Logo file 'logo.png' not found. Please ensure it's in the same directory.")
 except Exception as e:
-    st.error(f"Error loading car background image: {e}")
+    st.error(f"An error occurred while loading the logo: {e}")
 
-st.markdown(f"""
+st.markdown("""
     <style>
-        /* Simple chat interface with car background */
-        .stApp {{
-            background: #f0f0f0;
-            min-height: 100vh;
+        /* ChatGPT-like simple interface */
+        .stApp {
+            background: #ffffff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            position: relative;
-        }}
+        }
 
-        .stApp::before {{
-            content: "";
-            background-image: url('data:image/png;base64,{car_image_base64}');
-            background-repeat: no-repeat;
-            background-position: center center;
-            background-size: cover;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0.1;
-            z-index: -1;
-        }}
+        #MainMenu {visibility: hidden;}
+        header {visibility: hidden;}
+        footer {visibility: hidden;}
 
-        #MainMenu {{visibility: hidden;}}
-        header {{visibility: hidden;}}
-        footer {{visibility: hidden;}}
-
-        .chat-container {{
+        .main-container {
             max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
-            height: 100vh;
+            padding: 0;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-        }}
+        }
 
-        .chat-header {{
+        .chat-header {
             background: #fff;
             padding: 20px;
             text-align: center;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }}
+            border-bottom: 1px solid #e5e5e5;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
 
-        .chat-title {{
-            font-size: 24px;
+        .logo {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 10px auto;
+            display: block;
+        }
+
+        .chat-title {
+            font-size: 20px;
+            font-weight: 600;
             color: #333;
             margin: 0;
-        }}
+        }
 
-        .chat-subtitle {{
-            font-size: 14px;
-            color: #666;
-            margin: 5px 0 0 0;
-        }}
-
-        /* Messages area */
-        .messages-area {{
+        .messages-container {
             flex: 1;
-            overflow-y: auto;
             padding: 20px;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }}
+            overflow-y: auto;
+        }
 
-        /* Message bubbles */
-        .message {{
-            max-width: 70%;
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .user-message {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .user-avatar {
+            background: #10a37f;
+            color: white;
+        }
+
+        .bot-avatar {
+            background: #f7f7f8;
+            color: #333;
+        }
+
+        .message-content {
+            max-width: calc(100% - 44px);
+            font-size: 16px;
+            line-height: 1.5;
+            color: #333;
+        }
+
+        .user-message .message-content {
+            background: #f7f7f8;
             padding: 12px 16px;
             border-radius: 18px;
-            margin-bottom: 15px;
-            font-size: 16px;
-            line-height: 1.4;
-        }}
+            border-bottom-right-radius: 4px;
+        }
 
-        .user-message {{
-            background: #007bff;
-            color: white;
-            margin-left: auto;
-            margin-right: 0;
-        }}
+        .bot-message .message-content {
+            padding: 12px 0;
+        }
 
-        .bot-message {{
-            background: #f1f1f1;
-            color: #333;
-            margin-right: auto;
-            margin-left: 0;
-        }}
+        .message-time {
+            font-size: 12px;
+            color: #999;
+            margin-top: 4px;
+        }
 
-        .message-time {{
-            font-size: 10px;
-            color: rgba(0,0,0,0.5);
-            margin-top: 5px;
-            text-align: right;
-        }}
-
-        .bot-message .message-time {{
-            text-align: left;
-        }}
-
-        /* Welcome message */
-        .welcome-message {{
+        .welcome-message {
             text-align: center;
+            padding: 60px 20px;
             color: #666;
-            padding: 40px 20px;
-        }}
+        }
 
-        .welcome-message h2 {{
-            font-size: 24px;
-            margin-bottom: 10px;
+        .welcome-message h2 {
+            font-size: 28px;
+            margin-bottom: 12px;
             color: #333;
-        }}
+            font-weight: 600;
+        }
 
-        .welcome-message p {{
+        .welcome-message p {
             font-size: 16px;
             color: #666;
-        }}
+        }
 
-        /* Input area */
-        .input-container {{
+        .input-area {
             background: #fff;
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-top: 1px solid #e5e5e5;
+            position: sticky;
+            bottom: 0;
+        }
+
+        .input-container {
+            max-width: 800px;
+            margin: 0 auto;
             display: flex;
-            gap: 10px;
-        }}
+            gap: 12px;
+            align-items: flex-end;
+        }
 
-        .stTextInput {{
-            flex-grow: 1;
-        }}
+        .stTextInput {
+            flex: 1;
+        }
 
-        .stTextInput > div > div > input {{
-            background: #f8f9fa !important;
-            border: 1px solid #ddd !important;
-            color: #333 !important;
-            border-radius: 25px !important;
-            padding: 12px 20px !important;
+        .stTextInput > div > div > input {
+            background: #f7f7f8 !important;
+            border: 1px solid #d1d5db !important;
+            border-radius: 12px !important;
+            padding: 12px 16px !important;
             font-size: 16px !important;
-        }}
+            color: #333 !important;
+            resize: none !important;
+        }
 
-        .stTextInput > div > div > input:focus {{
-            border-color: #007bff !important;
-            box-shadow: 0 0 0 2px rgba(0,123,255,0.25) !important;
+        .stTextInput > div > div > input:focus {
+            border-color: #10a37f !important;
+            box-shadow: 0 0 0 2px rgba(16, 163, 127, 0.1) !important;
             outline: none !important;
-        }}
+        }
 
-        .stTextInput > div > div > input::placeholder {{
-            color: #999 !important;
-        }}
+        .stTextInput > div > div > input::placeholder {
+            color: #9ca3af !important;
+        }
 
-        .stButton > button {{
-            background: #007bff !important;
+        .stButton > button {
+            background: #10a37f !important;
             color: white !important;
             border: none !important;
-            border-radius: 25px !important;
-            padding: 12px 24px !important;
-            font-size: 16px !important;
+            border-radius: 8px !important;
+            padding: 12px 16px !important;
+            font-size: 14px !important;
+            font-weight: 600 !important;
             cursor: pointer !important;
-        }}
+            transition: background 0.2s !important;
+        }
 
-        .stButton > button:hover {{
-            background: #0056b3 !important;
-        }}
+        .stButton > button:hover {
+            background: #0d8a6b !important;
+        }
 
-        /* Typing indicator */
-        .typing-dots {{
-            display: inline-flex;
+        .stButton > button:disabled {
+            background: #d1d5db !important;
+            cursor: not-allowed !important;
+        }
+
+        .typing-indicator {
+            display: flex;
             align-items: center;
-        }}
+            gap: 4px;
+            color: #666;
+            font-style: italic;
+        }
 
-        .typing-dots span {{
-            display: inline-block;
-            width: 6px;
-            height: 6px;
-            background-color: #999;
+        .typing-dots {
+            display: flex;
+            gap: 2px;
+        }
+
+        .typing-dots span {
+            width: 4px;
+            height: 4px;
+            background: #999;
             border-radius: 50%;
-            margin: 0 2px;
             animation: typing 1.4s infinite ease-in-out;
-        }}
+        }
 
-        .typing-dots span:nth-child(1) {{
-            animation-delay: 0s;
-        }}
-        .typing-dots span:nth-child(2) {{
-            animation-delay: 0.2s;
-        }}
-        .typing-dots span:nth-child(3) {{
-            animation-delay: 0.4s;
-        }}
+        .typing-dots span:nth-child(1) { animation-delay: 0s; }
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
 
-        @keyframes typing {{
-            0%, 80%, 100% {{
-                transform: translateY(0);
-                opacity: 0.6;
-            }}
-            40% {{
-                transform: translateY(-3px);
-                opacity: 1;
-            }}
-        }}
+        @keyframes typing {
+            0%, 80%, 100% { opacity: 0.3; }
+            40% { opacity: 1; }
+        }
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown('<div class="chat-container">', unsafe_allow_html=True)
+st.markdown('<div class="main-container">', unsafe_allow_html=True)
 
-# Header section
+# Header with logo
 st.markdown(f"""
     <div class="chat-header">
-        <h1 class="chat-title">AutoDiag AI - Car Expert</h1>
-        <p class="chat-subtitle">Engine • Transmission • Electrical • Diagnostics</p>
+        {f'<img src="data:image/png;base64,{logo_base64}" class="logo">' if logo_base64 else ''}
+        <h1 class="chat-title">AutoDiag AI</h1>
     </div>
 """, unsafe_allow_html=True)
 
-st.markdown('<div class="messages-area">', unsafe_allow_html=True)
+st.markdown('<div class="messages-container">', unsafe_allow_html=True)
 
 # Welcome message or conversation display
 if not st.session_state.conversation:
@@ -266,27 +276,35 @@ if not st.session_state.conversation:
 else:
     for message in st.session_state.conversation:
         message_class = "user-message" if message["role"] == "user" else "bot-message"
+        avatar_class = "user-avatar" if message["role"] == "user" else "bot-avatar"
+        avatar_text = "U" if message["role"] == "user" else "AI"
+        
         st.markdown(f"""
             <div class="message {message_class}">
-                <div>{message["content"]}</div>
-                <div class="message-time">{message["timestamp"]}</div>
+                <div class="message-avatar {avatar_class}">{avatar_text}</div>
+                <div class="message-content">
+                    <div>{message["content"]}</div>
+                    <div class="message-time">{message["timestamp"]}</div>
+                </div>
             </div>
         """, unsafe_allow_html=True)
 
 st.markdown('</div>', unsafe_allow_html=True)
 
 # Input section
+st.markdown('<div class="input-area">', unsafe_allow_html=True)
 st.markdown('<div class="input-container">', unsafe_allow_html=True)
 
 user_input = st.text_input(
     "Type your message",
-    placeholder="Describe your car problem (engine noise, warning lights, performance issues...)",
+    placeholder="Describe your car problem...",
     key=st.session_state.input_key,
     label_visibility="collapsed"
 )
 
 send_button = st.button("Send", key="send_button_fixed")
 
+st.markdown('</div>', unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
 # Handle user input
